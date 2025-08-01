@@ -1,0 +1,8 @@
+{
+  "auto_backup_enabled": true,
+  "backup_frequency": "daily",
+  "backup_time": "03:30",
+  "max_backups": 5,
+  "compression": true,
+  "include_images": false
+}

@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            width: 300px;
+            margin: 0;
+            padding: 10px;
+            background: white;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .logo img {
+            max-width: 120px;
+            max-height: 60px;
+            width: auto;
+            height: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .separator {
+            border-top: 1px solid black;
+            margin: 5px 0;
+        }
+        .item-line {
+            margin: 2px 0;
+        }
+        .total-line {
+            font-weight: bold;
+            margin: 3px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+        .two-column {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo">
+        <img src="file:///C:/Users/Hp Laptop/.Origin/POS/assets/test_logo_hq.png" alt="Logo">
+    </div>
+
+    <div class="header">
+        <strong>Test Store</strong><br>
+        123 Test Street<br>
+        Test City, TC 12345<br>
+        555-CHANGED<br>
+
+    </div>
+    <div class="separator"></div>
+
+    <div>
+        <strong>Reçu: 999</strong><br>
+        Date: 01/08/2025 11:13<br>
+        Cashier: 1<br>
+
+    </div>
+    <div class="separator"></div>
+
+    <div class="item-line">
+        <strong>Test Product</strong><br>
+        <div class="two-column">
+            <span>2 x 25.00</span>
+            <span>50.00 DH</span>
+        </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <div class="total-line">
+        <div class="two-column">
+            <span><strong>TOTAL</strong></span>
+            <span><strong>50.00 DH</strong></span>
+        </div>
+    </div>
+
+    <div class="two-column">
+        <span>Espèce</span>
+        <span>50.00 DH</span>
+    </div>
+
+    <div class="separator"></div>
+
+</body>
+</html>

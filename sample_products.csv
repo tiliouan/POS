@@ -1,0 +1,7 @@
+Name,Description,Price,Barcode,Category,Stock,Cost Price
+Produit Test 1,Description du produit test 1,25.50,1234567890123,Électronique,100,15.00
+Produit Test 2,Description du produit test 2,18.75,9876543210987,Alimentaire,50,12.00
+Produit Test 3,Description du produit test 3,45.00,SKU-CLOTH-001,Vêtements,25,30.00
+Café Arabica,Café de qualité supérieure,35.00,COFFEE-ARA-250,Boissons,75,22.00
+Smartphone Samsung,Téléphone Android dernier modèle,850.00,8801643368609,Électronique,10,650.00
+Produit Sans Code,Produit sans code barre,12.50,,Divers,30,8.00

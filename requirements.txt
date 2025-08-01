@@ -1,0 +1,13 @@
+# No external dependencies required
+# All modules used are part of Python standard library:
+# - tkinter (GUI framework)
+# - sqlite3 (database)
+# - datetime (date/time handling)
+# - typing (type hints)
+# - dataclasses (data structures)
+# - enum (enumerations)
+
+# Optional dependencies for future enhancements:
+# pillow>=8.0.0  # For image handling
+# requests>=2.25.0  # For web services
+# reportlab>=3.6.0  # For PDF receipts

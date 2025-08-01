@@ -1,0 +1,20 @@
+{
+  "store_name": "Rimal Store",
+  "store_address_line1": "Mehdia Plage, 2eme Rue, N 87",
+  "store_address_line2": "",
+  "store_phone": "+212 673-143851",
+  "store_email": "",
+  "store_website": "",
+  "logo_enabled": true,
+  "logo_path": "C:/Users/Hp Laptop/.Origin/POS/assets/WhatsApp_Image_2025-06-30_atef0b46-removebg-preview.png",
+  "logo_text": "",
+  "receipt_width": 48,
+  "paper_size": "58mm",
+  "default_printer": "MF230 Series",
+  "auto_print": false,
+  "print_copies": 1,
+  "footer_message": "Merci pour votre achat",
+  "show_footer": true,
+  "tax_number": "",
+  "show_tax_number": false
+}

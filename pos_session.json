@@ -1,0 +1,84 @@
+{
+  "2025-07-31": {
+    "date": "2025-07-31",
+    "start_time": "2025-07-31T19:37:20.862028",
+    "cash_drawer_amount": 500.0,
+    "opening_reason": "Opening for test",
+    "status": "open",
+    "logout_time": null,
+    "cashier": "Admin",
+    "cash_transactions": [
+      {
+        "timestamp": "2025-07-31T19:37:20.869416",
+        "type": "Ajout",
+        "amount": 250.0,
+        "new_balance": 1250.0,
+        "reason": "Customer payment #1"
+      },
+      {
+        "timestamp": "2025-07-31T19:37:20.877534",
+        "type": "Ajout",
+        "amount": 150.0,
+        "new_balance": 1400.0,
+        "reason": "Customer payment #2"
+      },
+      {
+        "timestamp": "2025-07-31T19:37:20.885942",
+        "type": "Retrait",
+        "amount": 200.0,
+        "new_balance": 1200.0,
+        "reason": "Bank deposit"
+      },
+      {
+        "timestamp": "2025-07-31T19:37:20.894040",
+        "type": "Ajout",
+        "amount": 100.0,
+        "new_balance": 1300.0,
+        "reason": "Customer payment #3"
+      },
+      {
+        "timestamp": "2025-07-31T19:37:20.903411",
+        "type": "Retrait",
+        "amount": 50.0,
+        "new_balance": 1250.0,
+        "reason": "Change fund"
+      },
+      {
+        "timestamp": "2025-07-31T20:18:44.210533",
+        "type": "Retrait",
+        "amount": 50.0,
+        "new_balance": 450.0,
+        "reason": "Transaction caisse"
+      },
+      {
+        "timestamp": "2025-07-31T20:18:54.156709",
+        "type": "Ajout",
+        "amount": 100.0,
+        "new_balance": 550.0,
+        "reason": "Transaction caisse"
+      },
+      {
+        "timestamp": "2025-07-31T20:40:52.913748",
+        "type": "Retrait",
+        "amount": 50.0,
+        "new_balance": 500.0,
+        "reason": "Transaction caisse"
+      }
+    ],
+    "closing_reason": "Déconnexion manuelle",
+    "restart_time": "2025-07-31T22:51:58.038067",
+    "restart_reason": "Ouverture de session"
+  },
+  "2025-08-01": {
+    "date": "2025-08-01",
+    "start_time": "2025-08-01T00:03:06.800855",
+    "cash_drawer_amount": 500.0,
+    "opening_reason": "Ouverture de session",
+    "status": "open",
+    "logout_time": null,
+    "cashier": "Admin",
+    "closing_reason": "Déconnexion utilisateur",
+    "restart_time": "2025-08-01T11:20:26.233221",
+    "restart_reason": "Ouverture de session"
+  }
+}
