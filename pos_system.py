@@ -22,6 +22,7 @@ from utils.session_manager import SessionManager
 from dialogs.receipt_settings_dialog import ReceiptSettingsDialog
 from dialogs.language_settings_dialog import LanguageSettingsDialog
 from dialogs.login_dialog import LoginDialog, UserManagementDialog
+from dialogs.settings_dialog import SettingsDialog
 from config.language_settings import language_manager, get_text
 
 class POSApplication:
@@ -201,14 +202,14 @@ class POSApplication:
         # Main container with reduced padding
         self.main_frame = ttk.Frame(self.root, padding="5")  # Reduced from 10 to 5
         self.main_frame.grid(row=0, column=0, sticky="nsew")
-        self.main_frame.columnconfigure(1, weight=1)
+        self.main_frame.columnconfigure(0, weight=1)
         self.main_frame.rowconfigure(1, weight=1)  # Only header (row 0) and content (row 1), no footer
         
         # Header
         self.create_header()
         
-        # Create the main interface
-        self.create_interface()
+        # Create main content area without sidebar
+        self.create_main_content_area_full()
         
         # No footer - removed to maximize content space
     
@@ -627,6 +628,23 @@ class POSApplication:
         # Initially show the register screen
         self.show_register_screen()
         
+    def create_main_content_area_full(self):
+        """Create the main content area without sidebar - full width."""
+        self.content_area = ttk.Frame(self.main_frame)
+        self.content_area.grid(row=1, column=0, sticky="nsew")
+        
+        # Enhanced responsive grid configuration for full width
+        self.content_area.columnconfigure(0, weight=3, minsize=400)  # Products area - minimum width
+        self.content_area.columnconfigure(1, weight=1, minsize=250)  # Cart area - minimum width
+        self.content_area.rowconfigure(0, weight=1)  # Row 0 should get the expandable space
+        
+        # Configure main frame to properly distribute space
+        self.main_frame.columnconfigure(0, weight=1)
+        self.main_frame.rowconfigure(1, weight=1)
+        
+        # Initially show the register screen
+        self.show_register_screen()
+        
     def create_header(self):
         """Create a compact header with store info and navigation."""
         header_frame = ttk.Frame(self.main_frame)
@@ -663,29 +681,35 @@ class POSApplication:
         user_frame = ttk.Frame(header_frame)
         user_frame.grid(row=0, column=2, sticky="e")
         
+        # Settings button - positioned at top right
+        settings_btn = ttk.Button(user_frame, text="⚙️ " + get_text("settings"),
+                                command=self.open_settings_dialog,
+                                style="Accent.TButton")
+        settings_btn.pack(side="right", padx=(5, 0))
+        
         # Current user display
         current_user = user_manager.get_current_user()
         user_text = f"{get_text('logged_in_as')}: {current_user.name}" if current_user else get_text("admin")
         self.user_label = ttk.Label(user_frame, text=user_text, font=("Arial", 10))  # Reduced from 12 to 10
-        self.user_label.pack()
+        self.user_label.pack(side="right", padx=(0, 10))
         
         # Admin panel button (only for admins) - more compact
         if user_manager.is_admin():
             admin_btn = ttk.Button(user_frame, text=get_text("admin_panel"),
                                   command=self.show_user_management,
                                   style="Info.TButton")
-            admin_btn.pack(pady=(0, 2))  # Reduced from 5 to 2
+            admin_btn.pack(side="right", padx=(0, 5))
         
         # Cash management button - more compact
         cash_mgmt_btn = ttk.Button(user_frame, text=get_text("manage_cash").upper(),
                                   command=self.manage_cash,
                                   style="Warning.TButton")
-        cash_mgmt_btn.pack(pady=(0, 2))  # Reduced from 5 to 2
+        cash_mgmt_btn.pack(side="right", padx=(0, 5))
         
         logout_btn = ttk.Button(user_frame, text=get_text("logout"),
                                command=self.logout_user,
                                style="Danger.TButton")
-        logout_btn.pack()
+        logout_btn.pack(side="right", padx=(0, 5))
         
     def show_register_screen(self):
         """Show the main register/POS screen."""
@@ -703,7 +727,8 @@ class POSApplication:
         # Optimize column weights: more space for products (3), adequate space for cart (2)
         content_frame.columnconfigure(0, weight=3)  # Products area gets more space
         content_frame.columnconfigure(1, weight=2)  # Cart area gets adequate space
-        content_frame.rowconfigure(1, weight=1)
+        content_frame.rowconfigure(0, weight=0)     # Product buttons row - fixed height
+        content_frame.rowconfigure(1, weight=1)     # Main content row - expandable height
         
         # Product management buttons
         self.create_product_buttons(content_frame)
@@ -1039,32 +1064,40 @@ class POSApplication:
             canvas_width = max(800, window_width * 0.6)  # Estimate canvas width
             
         # Calculate optimal number of columns and card dimensions
-        min_card_width = 200  # Minimum card width
-        max_card_width = 350  # Maximum card width for readability
-        card_spacing = 15  # Space between cards
-        padding = 40  # Total horizontal padding including scrollbar
+        min_card_width = 180  # Reduced minimum card width
+        max_card_width = 280  # Reduced maximum card width for more compact cards
+        card_spacing = 10  # Reduced space between cards
+        padding = 30  # Reduced horizontal padding
         
         # Calculate optimal columns (between 2-4 for best UX)
         available_width = canvas_width - padding
         max_possible_cols = available_width // (min_card_width + card_spacing)
         optimal_cols = min(max(2, max_possible_cols), 4)  # Between 2-4 columns
         
-        # Override to 3 columns as requested by user, but make it responsive within that constraint
+        # Use 3 columns as requested, optimized for more compact display
         max_cols = 3
         
-        # Calculate actual card width
+        # Calculate actual card width for more compact display
         total_spacing = (max_cols - 1) * card_spacing
         available_for_cards = available_width - total_spacing
         card_width = min(max_card_width, max(min_card_width, available_for_cards // max_cols))
         
-        # Configure responsive columns
+        # Configure responsive columns with minimal spacing
         for col in range(max_cols):
             self.products_scrollable_frame.columnconfigure(col, weight=1, minsize=card_width)
+        
+        # Configure row spacing to be minimal for more compact layout
+        current_row = -1
             
         # Create product grid with responsive cards
         for i, product in enumerate(products):
             row = i // max_cols
             col = i % max_cols
+            
+            # Configure row for minimal spacing only when we encounter a new row
+            if row != current_row:
+                self.products_scrollable_frame.rowconfigure(row, weight=0, minsize=120)  # Fixed height for compactness
+                current_row = row
             
             # Determine product card styling based on stock
             if product.stock_quantity == 0:
@@ -1083,67 +1116,68 @@ class POSApplication:
                 stock_indicator = "🟢"
                 stock_status = f"En stock ({product.stock_quantity})"
             
-            # Create responsive product card
+            # Create responsive product card - more compact
             product_frame = tk.Frame(self.products_scrollable_frame, 
-                                   relief="solid", borderwidth=2,
+                                   relief="solid", borderwidth=1,  # Reduced border width
                                    bg=card_bg, 
                                    highlightbackground=card_border,
                                    highlightthickness=1)
-            product_frame.grid(row=row, column=col, padx=8, pady=8, sticky="nsew", ipadx=8, ipady=8)
+            product_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nsew", ipadx=5, ipady=5)  # Reduced padding
             
+            # Remove the individual row configuration since we handle it above
             # Make rows expandable
-            self.products_scrollable_frame.rowconfigure(row, weight=1)
+            # self.products_scrollable_frame.rowconfigure(row, weight=1)  # Removed to use fixed height above
             
             # Configure card internal layout
             product_frame.columnconfigure(0, weight=1)
             
-            # Card header with stock indicator
+            # Card header with stock indicator - more compact
             header_frame = tk.Frame(product_frame, bg=card_bg)
-            header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 8))
+            header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 4))  # Reduced padding
             header_frame.columnconfigure(0, weight=1)
             
-            # Product category (left)
+            # Product category (left) - smaller font
             if product.category:
                 category_label = tk.Label(header_frame, text=f"📂 {product.category}",
-                                         font=("Arial", 9),
+                                         font=("Arial", 8),  # Reduced font size
                                          bg=card_bg, fg="#666")
                 category_label.grid(row=0, column=0, sticky="w")
             
-            # Stock indicator (right)
+            # Stock indicator (right) - smaller
             stock_label = tk.Label(header_frame, text=f"{stock_indicator}",
-                                 font=("Arial", 14),
+                                 font=("Arial", 12),  # Reduced font size
                                  bg=card_bg)
             stock_label.grid(row=0, column=1, sticky="e")
             
-            # Product name with responsive text wrapping
+            # Product name with responsive text wrapping - more compact
             display_name = product.name
             # Calculate optimal text length based on card width
-            max_chars = max(20, card_width // 10)
+            max_chars = max(15, card_width // 12)  # Slightly shorter names
             if len(display_name) > max_chars:
                 display_name = display_name[:max_chars-3] + "..."
                 
             name_label = tk.Label(product_frame, text=display_name,
-                                 font=("Arial", 12, "bold"),
+                                 font=("Arial", 11, "bold"),  # Reduced font size
                                  bg=card_bg, fg="#333",
-                                 wraplength=card_width-40,
+                                 wraplength=card_width-30,  # Reduced wrap length
                                  justify="center")
-            name_label.grid(row=1, column=0, pady=(0, 8), sticky="ew")
+            name_label.grid(row=1, column=0, pady=(0, 4), sticky="ew")  # Reduced padding
             
-            # Price with enhanced styling
+            # Price with enhanced styling - more compact
             price_label = tk.Label(product_frame, text=f"{product.price:.2f} DH",
-                                  font=("Arial", 14, "bold"),
+                                  font=("Arial", 13, "bold"),  # Reduced font size
                                   bg=card_bg, fg="#1976d2")
-            price_label.grid(row=2, column=0, pady=(0, 8))
+            price_label.grid(row=2, column=0, pady=(0, 4))  # Reduced padding
             
-            # Stock status with responsive text
+            # Stock status with responsive text - more compact
             status_color = {"🔴": "#d32f2f", "🟠": "#f57c00", "🟢": "#388e3c"}[stock_indicator]
             status_label = tk.Label(product_frame, text=stock_status,
-                                   font=("Arial", 9, "bold"),
+                                   font=("Arial", 8, "bold"),  # Reduced font size
                                    bg=card_bg, fg=status_color,
-                                   wraplength=card_width-20)
-            status_label.grid(row=3, column=0, pady=(0, 12))
+                                   wraplength=card_width-15)  # Reduced wrap length
+            status_label.grid(row=3, column=0, pady=(0, 6))  # Reduced padding
             
-            # Action button with responsive sizing
+            # Action button with responsive sizing - more compact
             if product.stock_quantity > 0:
                 btn_text = f"🛒 Ajouter"
                 btn_color = "#4caf50"
@@ -1160,12 +1194,12 @@ class POSApplication:
             add_btn = tk.Button(product_frame, text=btn_text,
                                command=lambda p=product: self.add_to_cart(p),
                                bg=btn_color, fg="black",  # Changed to black text
-                               font=("Arial", 10, "bold"),
+                               font=("Arial", 9, "bold"),  # Reduced font size
                                state=btn_state,
                                relief="flat",
                                cursor=btn_cursor,
-                               padx=10, pady=8)
-            add_btn.grid(row=4, column=0, sticky="ew", pady=(0, 4))
+                               padx=8, pady=5)  # Reduced padding
+            add_btn.grid(row=4, column=0, sticky="ew", pady=(0, 2))  # Reduced padding
             
             # Add hover effects for enabled buttons
             if product.stock_quantity > 0:
@@ -1688,6 +1722,14 @@ class POSApplication:
                 self.session_manager.end_session("Déconnexion manuelle")
             self.root.destroy()
     
+    def open_settings_dialog(self):
+        """Open the comprehensive settings dialog."""
+        try:
+            dialog = SettingsDialog(self.root, self)
+            dialog.show()
+        except Exception as e:
+            messagebox.showerror(get_text("error"), f"Settings error: {e}")
+    
     def open_receipt_settings(self):
         """Open receipt settings dialog."""
         try:
@@ -1742,8 +1784,8 @@ class POSApplication:
     
     def create_interface(self):
         """Create the main interface components."""
-        # Sidebar and main content area
-        self.create_sidebar_and_content()
+        # Main content area without sidebar
+        self.create_main_content_area_full()
     
     def recreate_interface(self):
         """Recreate the interface with current language."""

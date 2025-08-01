@@ -80,5 +80,15 @@
     "closing_reason": "Déconnexion utilisateur",
     "restart_time": "2025-08-01T11:20:26.233221",
     "restart_reason": "Ouverture de session"
+  },
+  "2025-08-02": {
+    "date": "2025-08-02",
+    "start_time": "2025-08-02T00:20:14.420433",
+    "cash_drawer_amount": 500.0,
+    "opening_reason": "Ouverture de session",
+    "status": "closed",
+    "logout_time": "2025-08-02T00:43:06.518560",
+    "cashier": "Admin",
+    "closing_reason": "Déconnexion utilisateur"
   }
 }
