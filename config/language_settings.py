@@ -210,6 +210,13 @@ class LanguageManager:
                 "print_receipt_dialog": "Imprimer le reçu",
                 "confirm_delete": "Confirmer la suppression",
                 "select_printer": "Sélectionner l'imprimante",
+                "print_order": "Imprimer la commande",
+                "reprint_receipt": "Réimprimer le reçu",
+                "no_order_selected": "Aucune commande sélectionnée",
+                "order_details": "Détails de la commande",
+                "view_order": "Voir la commande",
+                "print_success": "Impression réussie",
+                "print_failed": "Échec de l'impression",
                 
                 # Additional message box translations
                 "cart_empty_error": "Le panier est vide!",
@@ -575,6 +582,13 @@ class LanguageManager:
                 "print_receipt_dialog": "طباعة الإيصال",
                 "confirm_delete": "تأكيد الحذف",
                 "select_printer": "اختيار الطابعة",
+                "print_order": "طباعة الطلب",
+                "reprint_receipt": "إعادة طباعة الإيصال",
+                "no_order_selected": "لم يتم اختيار أي طلب",
+                "order_details": "تفاصيل الطلب",
+                "view_order": "عرض الطلب",
+                "print_success": "تمت الطباعة بنجاح",
+                "print_failed": "فشل في الطباعة",
                 
                 # Additional message box translations
                 "cart_empty_error": "السلة فارغة!",

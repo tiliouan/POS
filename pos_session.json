@@ -86,9 +86,11 @@
     "start_time": "2025-08-02T00:20:14.420433",
     "cash_drawer_amount": 500.0,
     "opening_reason": "Ouverture de session",
-    "status": "closed",
-    "logout_time": "2025-08-02T00:43:06.518560",
+    "status": "open",
+    "logout_time": null,
     "cashier": "Admin",
-    "closing_reason": "Déconnexion utilisateur"
+    "closing_reason": "Déconnexion utilisateur",
+    "restart_time": "2025-08-02T00:49:49.703086",
+    "restart_reason": "Ouverture de session"
   }
 }

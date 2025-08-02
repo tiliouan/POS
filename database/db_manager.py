@@ -498,6 +498,40 @@ class DatabaseManager:
             
             return sales
     
+    def get_sale_by_id(self, sale_id: int) -> Optional[Sale]:
+        """Get a specific sale by ID."""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT id, timestamp, subtotal, tax_rate, tax_amount, discount,
+                       total, item_count, notes, cashier_id, customer_id
+                FROM sales
+                WHERE id = ?
+            ''', (sale_id,))
+            
+            row = cursor.fetchone()
+            if not row:
+                return None
+                
+            sale = Sale(
+                id=row[0],
+                timestamp=datetime.fromisoformat(row[1]),
+                tax_rate=row[3],
+                discount=row[5],
+                notes=row[8] or "",
+                cashier_id=row[9],
+                customer_id=row[10]
+            )
+            
+            # Load sale items
+            sale.items = self._get_sale_items(cursor, sale.id)
+            
+            # Load payment
+            sale.payment = self._get_sale_payment(cursor, sale.id)
+            
+            return sale
+    
     def _get_sale_items(self, cursor, sale_id: int) -> List[SaleItem]:
         """Get sale items for a sale."""
         cursor.execute('''

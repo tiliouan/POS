@@ -1630,6 +1630,127 @@ class POSApplication:
             
         # Create order history interface
         self.create_order_history_interface()
+    
+    def print_order_from_history(self, sale_id: int):
+        """Print an order from history."""
+        try:
+            # Get the sale from database
+            sale = self.db_manager.get_sale_by_id(sale_id)
+            if not sale:
+                messagebox.showerror(get_text("error"), f"Commande #{sale_id} non trouvée")
+                return
+            
+            # Import receipt printer
+            from utils.advanced_receipt_printer import AdvancedReceiptPrinter
+            printer = AdvancedReceiptPrinter()
+            
+            # Print the receipt
+            result = printer.print_receipt(sale)
+            
+            if "Error" not in result:
+                messagebox.showinfo(get_text("print_success"), f"Reçu de la commande #{sale_id} imprimé avec succès")
+            else:
+                messagebox.showerror(get_text("print_failed"), result)
+                
+        except Exception as e:
+            messagebox.showerror(get_text("error"), f"{get_text('print_failed')}: {e}")
+            
+    def show_order_details(self, sale_id: int):
+        """Show detailed view of an order."""
+        try:
+            # Get the sale from database
+            sale = self.db_manager.get_sale_by_id(sale_id)
+            if not sale:
+                messagebox.showerror(get_text("error"), f"Commande #{sale_id} non trouvée")
+                return
+            
+            # Create order details dialog
+            self.create_order_details_dialog(sale)
+            
+        except Exception as e:
+            messagebox.showerror(get_text("error"), f"Erreur lors de l'affichage des détails: {e}")
+    
+    def create_order_details_dialog(self, sale: Sale):
+        """Create a dialog showing order details."""
+        dialog = tk.Toplevel(self.root)
+        dialog.title(f"{get_text('order_details')} - #{sale.id}")
+        dialog.geometry("600x500")
+        dialog.configure(bg="white")
+        dialog.resizable(False, False)
+        
+        # Center the dialog
+        dialog.transient(self.root)
+        dialog.grab_set()
+        
+        # Main frame
+        main_frame = ttk.Frame(dialog, padding="20")
+        main_frame.pack(fill="both", expand=True)
+        
+        # Title
+        title_label = ttk.Label(main_frame, text=f"Commande #{sale.id}", 
+                               font=("Arial", 16, "bold"))
+        title_label.pack(pady=(0, 20))
+        
+        # Order info
+        info_frame = ttk.LabelFrame(main_frame, text="Informations de la commande", padding="10")
+        info_frame.pack(fill="x", pady=(0, 20))
+        
+        ttk.Label(info_frame, text=f"Date: {sale.timestamp.strftime('%d/%m/%Y %H:%M') if sale.timestamp else 'N/A'}").pack(anchor="w")
+        ttk.Label(info_frame, text=f"Caissier: {sale.cashier_id or 'N/A'}").pack(anchor="w")
+        if sale.payment:
+            payment_method = "Espèces" if sale.payment.method.value == "cash" else "Carte"
+            ttk.Label(info_frame, text=f"Mode de paiement: {payment_method}").pack(anchor="w")
+        
+        # Items
+        items_frame = ttk.LabelFrame(main_frame, text="Articles", padding="10")
+        items_frame.pack(fill="both", expand=True, pady=(0, 20))
+        
+        # Items treeview
+        columns = ("Produit", "Quantité", "Prix unitaire", "Total")
+        items_tree = ttk.Treeview(items_frame, columns=columns, show="headings", height=8)
+        
+        for col in columns:
+            items_tree.heading(col, text=col)
+            
+        items_tree.column("Produit", width=200)
+        items_tree.column("Quantité", width=80)
+        items_tree.column("Prix unitaire", width=100)
+        items_tree.column("Total", width=100)
+        
+        # Add items
+        for item in sale.items:
+            items_tree.insert("", "end", values=(
+                item.product.name,
+                item.quantity,
+                f"{item.unit_price:.2f} DH",
+                f"{item.total:.2f} DH"
+            ))
+        
+        items_tree.pack(fill="both", expand=True)
+        
+        # Totals
+        totals_frame = ttk.Frame(main_frame)
+        totals_frame.pack(fill="x", pady=(0, 20))
+        
+        ttk.Label(totals_frame, text=f"Sous-total: {sale.subtotal:.2f} DH", 
+                 font=("Arial", 10)).pack(anchor="e")
+        if sale.tax_amount > 0:
+            ttk.Label(totals_frame, text=f"TVA: {sale.tax_amount:.2f} DH",
+                     font=("Arial", 10)).pack(anchor="e")
+        if sale.discount > 0:
+            ttk.Label(totals_frame, text=f"Remise: -{sale.discount:.2f} DH",
+                     font=("Arial", 10)).pack(anchor="e")
+        ttk.Label(totals_frame, text=f"Total: {sale.total:.2f} DH", 
+                 font=("Arial", 12, "bold")).pack(anchor="e")
+        
+        # Buttons
+        buttons_frame = ttk.Frame(main_frame)
+        buttons_frame.pack(fill="x")
+        
+        ttk.Button(buttons_frame, text=get_text("reprint_receipt"),
+                  command=lambda: self.print_order_from_history(sale.id)).pack(side="left", padx=(0, 10))
+        ttk.Button(buttons_frame, text=get_text("close"),
+                  command=dialog.destroy).pack(side="right")
         
     def show_daily_profit(self):
         """Show the advanced reports screen."""
@@ -1680,7 +1801,7 @@ class POSApplication:
         else:
             # Create orders list with treeview
             columns = ("Commande", "Heure", "Client", "Total", "Statut")
-            orders_tree = ttk.Treeview(orders_frame, columns=columns, show="headings", height=15)
+            orders_tree = ttk.Treeview(orders_frame, columns=columns, show="headings", height=12)
             
             # Configure columns
             orders_tree.heading("Commande", text=get_text("order"))
@@ -1696,23 +1817,70 @@ class POSApplication:
             orders_tree.column("Statut", width=120)
             
             # Add sales data
+            self.sales_data = {}  # Store sales by item ID for easy retrieval
             for sale in sales:
                 time_str = sale.timestamp.strftime("%d/%m/%Y %H:%M") if sale.timestamp else ""
                 payment_method = get_text("cash") if sale.payment and sale.payment.is_cash_payment else get_text("card")
-                orders_tree.insert("", "end", values=(
+                item_id = orders_tree.insert("", "end", values=(
                     f"#{sale.id}",
                     time_str,
                     "Client invité",
                     f"{sale.total:.2f} DH",
                     f"Payé en : {payment_method} - Terminée"
                 ))
+                # Store sale ID mapping for later retrieval
+                self.sales_data[item_id] = sale.id
+            
+            # Create frame for treeview and scrollbar
+            tree_frame = ttk.Frame(orders_frame)
+            tree_frame.pack(fill="both", expand=True, pady=(0, 20))
             
             # Scrollbar for orders
-            orders_scrollbar = ttk.Scrollbar(orders_frame, orient="vertical", command=orders_tree.yview)
+            orders_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=orders_tree.yview)
             orders_tree.configure(yscrollcommand=orders_scrollbar.set)
             
             orders_tree.pack(side="left", fill="both", expand=True)
             orders_scrollbar.pack(side="right", fill="y")
+            
+            # Action buttons frame
+            actions_frame = ttk.Frame(orders_frame)
+            actions_frame.pack(fill="x")
+            
+            def get_selected_sale_id():
+                """Get the selected sale ID from the treeview."""
+                selection = orders_tree.selection()
+                if not selection:
+                    messagebox.showwarning(get_text("warning"), get_text("no_order_selected"))
+                    return None
+                
+                # Get sale ID from our stored mapping
+                item_id = selection[0]
+                if item_id in self.sales_data:
+                    return self.sales_data[item_id]
+                else:
+                    messagebox.showerror(get_text("error"), "ID de commande non trouvé")
+                    return None
+            
+            def on_view_details():
+                """Handle view details button click."""
+                sale_id = get_selected_sale_id()
+                if sale_id:
+                    self.show_order_details(sale_id)
+            
+            def on_print_order():
+                """Handle print order button click."""
+                sale_id = get_selected_sale_id()
+                if sale_id:
+                    self.print_order_from_history(sale_id)
+            
+            # Add action buttons
+            ttk.Button(actions_frame, text=get_text("view_order"),
+                      command=on_view_details, style="Info.TButton").pack(side="left", padx=(0, 10))
+            ttk.Button(actions_frame, text=get_text("reprint_receipt"),
+                      command=on_print_order, style="Success.TButton").pack(side="left", padx=(0, 10))
+            
+            # Double-click to view details
+            orders_tree.bind("<Double-1>", lambda e: on_view_details())
 
     def logout(self):
         """Logout and close application."""
